@@ -13,19 +13,29 @@ namespace CardsService.Api.Infrastructure.Services
             { 3, "От Сбер" },
             { 4, "От ПСБ" },
         };
-        public Task Add(AddCardRequest request, CancellationToken cancellationToken = default)
+        public Task<Card> Add(AddCardRequest request, CancellationToken cancellationToken = default)
         {
             if (!_cardTypes.ContainsKey(request.CardTypeId))
             {
                 throw new RpcException(new Status(StatusCode.InvalidArgument, $"Неизвестный тип карты [{request.CardTypeId}]"));
             }
-            _cards.Add(new()
+            var card = new Database.Entities.Card()
             {
                 Id = _cards.Count + 1,
                 CardTypeId = request.CardTypeId,
                 Sn = Guid.NewGuid().ToString().Replace("-", null)[..8]
+            };
+            _cards.Add(card);
+            return Task.FromResult(new Card()
+            {
+                Id = card.Id,
+                Sn = card.Sn,
+                Type = new()
+                {
+                    Id = card.CardTypeId,
+                    Name = _cardTypes[card.CardTypeId]
+                }
             });
-            return Task.CompletedTask;
         }
 
         public Task<Card> GetById(GetCardByIdRequest request, CancellationToken cancellationToken = default)

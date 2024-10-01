@@ -47,7 +47,7 @@ namespace GatewayService.Controllers
         }
         /// <inheritdoc cref="ICardsService.Add(AddCardRequest, CancellationToken)"/>
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(Card), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Add(AddCardRequest model, CancellationToken cancellationToken = default)
         {

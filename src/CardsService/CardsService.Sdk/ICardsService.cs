@@ -40,6 +40,6 @@ namespace CardsService.Sdk
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [OperationContract]
-        Task Add(AddCardRequest request, CancellationToken cancellationToken = default);
+        Task<Card> Add(AddCardRequest request, CancellationToken cancellationToken = default);
     }
 }
