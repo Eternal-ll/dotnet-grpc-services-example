@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GatewayService.Controllers
 {
+    /// <summary>
+    /// Карты
+    /// </summary>
     [ApiController]
     [Route("cards")]
     public class CardsController : ControllerBase
@@ -14,17 +17,38 @@ namespace GatewayService.Controllers
         {
             _cardsService = cardsService;
         }
+        /// <inheritdoc cref="ICardsService.GetCards(GetCardsRequest, CancellationToken)"/>
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="skip"></param>
+        /// <param name="take"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         [HttpGet]
+        [ProducesResponseType(typeof(Card[]), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Get(int skip = 0, int take = 20, CancellationToken cancellationToken = default)
         {
             return await HandleRpcRequest(_cardsService.GetCards(new(skip, take), cancellationToken));
         }
+        /// <inheritdoc cref="ICardsService.GetById(GetCardByIdRequest, CancellationToken)"/>
+        /// <summary>
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByid(int id, CancellationToken cancellationToken = default)
+        [ProducesResponseType(typeof(Card), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken = default)
         {
             return await HandleRpcRequest(_cardsService.GetById(new() { Id = id }, cancellationToken));
         }
+        /// <inheritdoc cref="ICardsService.Add(AddCardRequest, CancellationToken)"/>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Add(AddCardRequest model, CancellationToken cancellationToken = default)
         {
             return await HandleRpcRequest(_cardsService.Add(model, cancellationToken));
@@ -45,7 +69,7 @@ namespace GatewayService.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return Problem(ex.Message, statusCode: StatusCodes.Status400BadRequest);
             }
         }
         private async Task<IActionResult> HandleRpcRequest(Task task)
@@ -57,11 +81,11 @@ namespace GatewayService.Controllers
             }
             catch (RpcException ex)
             {
-                return Problem(ex.Status.Detail);
+                return Problem(ex.Status.Detail, statusCode: StatusCodes.Status400BadRequest);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return Problem(ex.Message, statusCode: StatusCodes.Status400BadRequest);
             }
         }
     }

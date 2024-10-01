@@ -2,6 +2,9 @@
 
 namespace CardsService.Sdk
 {
+    /// <summary>
+    /// Запрос на получение списка карт
+    /// </summary>
     [DataContract]
     public class GetCardsRequest
     {
@@ -14,9 +17,14 @@ namespace CardsService.Sdk
             Skip = skip;
             Take = take;
         }
-
+        /// <summary>
+        /// Пропустить Х записей
+        /// </summary>
         [DataMember(Order = 1)]
         public int Skip { get; set; }
+        /// <summary>
+        /// Запросить Х записей
+        /// </summary>
         [DataMember(Order = 2)]
         public int Take { get; set; }
     }
