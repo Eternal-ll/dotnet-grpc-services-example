@@ -23,7 +23,11 @@ builder.Services.AddDbContext<CardsContext>(x =>
     x.UseInMemoryDatabase("Cards");
 });
 
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
+
+app.UseHealthChecks("/healthz");
 
 // Configure the HTTP request pipeline.
 

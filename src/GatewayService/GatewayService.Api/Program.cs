@@ -22,9 +22,13 @@ builder.Services.AddCodeFirstGrpcClient<ICardsService>(x =>
     x.Address = new Uri("http://localhost:5211");
 });
 
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 app.UsePathBase("/api");
+
+app.UseHealthChecks("/heathz");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
