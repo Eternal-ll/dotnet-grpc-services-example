@@ -8,10 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.8" />
     <PackageReference Include="protobuf-net.Grpc.AspNetCore" Version="1.1.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CardsService.Database\CardsService.Database.csproj" />
     <ProjectReference Include="..\CardsService.Sdk\CardsService.Sdk.csproj" />
   </ItemGroup>
 

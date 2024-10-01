@@ -1,4 +1,4 @@
-﻿namespace CardsService.Api.Infrastructure.Database.Entities
+﻿namespace CardsService.Database.Entities
 {
     public class Card
     {

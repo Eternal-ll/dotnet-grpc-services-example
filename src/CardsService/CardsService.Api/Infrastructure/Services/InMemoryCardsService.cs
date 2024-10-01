@@ -1,11 +1,19 @@
-﻿using CardsService.Sdk;
+﻿using CardsService.Database.Context;
+using CardsService.Sdk;
 using Grpc.Core;
+using Microsoft.EntityFrameworkCore;
 
 namespace CardsService.Api.Infrastructure.Services
 {
     public class InMemoryCardsService : ICardsService
     {
-        private static List<Database.Entities.Card> _cards = new();
+        private readonly CardsContext _context;
+
+        public InMemoryCardsService(CardsContext context)
+        {
+            _context = context;
+        }
+
         private static Dictionary<int, string> _cardTypes = new()
         {
             { 1, "Без банка" },
@@ -13,7 +21,7 @@ namespace CardsService.Api.Infrastructure.Services
             { 3, "От Сбер" },
             { 4, "От ПСБ" },
         };
-        public Task<Card> Add(AddCardRequest request, CancellationToken cancellationToken = default)
+        public async Task<Card> Add(AddCardRequest request, CancellationToken cancellationToken = default)
         {
             if (!_cardTypes.ContainsKey(request.CardTypeId))
             {
@@ -21,28 +29,28 @@ namespace CardsService.Api.Infrastructure.Services
             }
             var card = new Database.Entities.Card()
             {
-                Id = _cards.Count + 1,
                 CardTypeId = request.CardTypeId,
                 Sn = Guid.NewGuid().ToString().Replace("-", null)[..8]
             };
-            _cards.Add(card);
-            return Task.FromResult(new Card()
+            var entry = _context.Cards.Add(card);
+            await _context.SaveChangesAsync();
+            return new Card()
             {
-                Id = card.Id,
+                Id = entry.Entity.Id,
                 Sn = card.Sn,
                 Type = new()
                 {
                     Id = card.CardTypeId,
                     Name = _cardTypes[card.CardTypeId]
                 }
-            });
+            };
         }
 
-        public Task<Card> GetById(GetCardByIdRequest request, CancellationToken cancellationToken = default)
+        public async Task<Card> GetById(GetCardByIdRequest request, CancellationToken cancellationToken = default)
         {
-            var card = _cards.FirstOrDefault(x => x.Id == request.Id)
+            var card = await _context.Cards.FirstOrDefaultAsync(x => x.Id == request.Id)
                 ?? throw new RpcException(new(StatusCode.NotFound, $"Card [{request.Id}] not found"));
-            return Task.FromResult(new Card()
+            return new Card()
             {
                 Id = card.Id,
                 Sn = card.Sn,
@@ -51,14 +59,16 @@ namespace CardsService.Api.Infrastructure.Services
                     Id = card.CardTypeId,
                     Name = _cardTypes[card.CardTypeId]
                 }
-            });
+            };
         }
 
-        public Task<Card[]> GetCards(GetCardsRequest request, CancellationToken cancellationToken = default)
+        public async Task<Card[]> GetCards(GetCardsRequest request, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(_cards
+            var data = await _context.Cards
                 .Skip(request.Skip)
                 .Take(request.Take)
+                .ToArrayAsync(cancellationToken);
+            return data
                 .Select(x => new Card()
                 {
                     Id = x.Id,
@@ -69,7 +79,7 @@ namespace CardsService.Api.Infrastructure.Services
                     },
                     Sn = x.Sn
                 })
-                .ToArray());
+                .ToArray();
         }
 
         public Task<CardType[]> GetCardTypes(CancellationToken cancellationToken = default)

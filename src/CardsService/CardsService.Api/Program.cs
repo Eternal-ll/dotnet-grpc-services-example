@@ -1,5 +1,7 @@
 using CardsService.Api.Infrastructure.Services;
+using CardsService.Database.Context;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.EntityFrameworkCore;
 using ProtoBuf.Grpc.Server;
 
 AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
@@ -15,6 +17,11 @@ builder.WebHost.ConfigureKestrel((options) =>
 
 // Add services to the container.
 builder.Services.AddCodeFirstGrpc();
+
+builder.Services.AddDbContext<CardsContext>(x =>
+{
+    x.UseInMemoryDatabase("Cards");
+});
 
 var app = builder.Build();
 
