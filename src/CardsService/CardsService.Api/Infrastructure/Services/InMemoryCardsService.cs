@@ -30,7 +30,7 @@ namespace CardsService.Api.Infrastructure.Services
             var card = new Database.Entities.Card()
             {
                 CardTypeId = request.CardTypeId,
-                Sn = Guid.NewGuid().ToString().Replace("-", null)[..8]
+                Sn = Guid.NewGuid().ToString().Replace("-", null)[..8].ToUpper()
             };
             var entry = _context.Cards.Add(card);
             await _context.SaveChangesAsync();
