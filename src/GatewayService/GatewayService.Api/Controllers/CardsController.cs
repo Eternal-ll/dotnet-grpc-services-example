@@ -61,28 +61,6 @@ namespace GatewayService.Controllers
                 var result = await task;
                 return Ok(result);
             }
-            catch (RpcException ex)
-            {
-                int statusCode = ex.StatusCode == Grpc.Core.StatusCode.NotFound ? 404 : 400;
-                return Problem(ex.Status.Detail,
-                    statusCode: statusCode);
-            }
-            catch (Exception ex)
-            {
-                return Problem(ex.Message, statusCode: StatusCodes.Status400BadRequest);
-            }
-        }
-        private async Task<IActionResult> HandleRpcRequest(Task task)
-        {
-            try
-            {
-                await task;
-                return Created();
-            }
-            catch (RpcException ex)
-            {
-                return Problem(ex.Status.Detail, statusCode: StatusCodes.Status400BadRequest);
-            }
             catch (Exception ex)
             {
                 return Problem(ex.Message, statusCode: StatusCodes.Status400BadRequest);
