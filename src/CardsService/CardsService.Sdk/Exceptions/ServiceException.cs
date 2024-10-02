@@ -13,7 +13,7 @@ namespace CardsService.Sdk.Exceptions
         /// Error code
         /// </summary>
         public ErrorCode ErrorCode { get; private set; }
-        public ServiceException(ErrorCode errorCode)
+        public ServiceException(ErrorCode errorCode) : base(ErrorCodes.GetMessage(errorCode))
         {
             ErrorCode = errorCode;
         }
