@@ -1,4 +1,5 @@
 using CardsService.Sdk;
+using CardsService.Sdk.Interceptors;
 using ProtoBuf.Grpc.ClientFactory;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,10 +18,13 @@ builder.Services.AddSwaggerGen(x =>
     }
 });
 
-builder.Services.AddCodeFirstGrpcClient<ICardsService>(x =>
-{
-    x.Address = new Uri("http://localhost:5211");
-});
+builder.Services
+    .AddTransient<DomainExceptionInterceptor>()
+    .AddCodeFirstGrpcClient<ICardsService>(x =>
+    {
+        x.Address = new Uri("http://localhost:5211");
+    })
+    .AddInterceptor<DomainExceptionInterceptor>();
 
 builder.Services.AddHealthChecks();
 
