@@ -1,6 +1,6 @@
 ﻿using CardsService.Database.Context;
 using CardsService.Sdk;
-using Grpc.Core;
+using CardsService.Sdk.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace CardsService.Api.Infrastructure.Services
@@ -25,7 +25,7 @@ namespace CardsService.Api.Infrastructure.Services
         {
             if (!_cardTypes.ContainsKey(request.CardTypeId))
             {
-                throw new RpcException(new Status(StatusCode.InvalidArgument, $"Неизвестный тип карты [{request.CardTypeId}]"));
+                throw new ServiceException(ErrorCode.CardTypeNotFound);
             }
             var card = new Database.Entities.Card()
             {
@@ -49,7 +49,7 @@ namespace CardsService.Api.Infrastructure.Services
         public async Task<Card> GetById(GetCardByIdRequest request, CancellationToken cancellationToken = default)
         {
             var card = await _context.Cards.FirstOrDefaultAsync(x => x.Id == request.Id)
-                ?? throw new RpcException(new(StatusCode.NotFound, $"Card [{request.Id}] not found"));
+                ?? throw new ServiceException(ErrorCode.CardNotFound);
             return new Card()
             {
                 Id = card.Id,

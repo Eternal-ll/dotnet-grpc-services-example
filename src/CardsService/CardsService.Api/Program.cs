@@ -1,5 +1,6 @@
 using CardsService.Api.Infrastructure.Services;
 using CardsService.Database.Context;
+using CardsService.Sdk.Interceptors;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using ProtoBuf.Grpc.Server;
@@ -16,7 +17,10 @@ builder.WebHost.ConfigureKestrel((options) =>
 });
 
 // Add services to the container.
-builder.Services.AddCodeFirstGrpc();
+builder.Services.AddCodeFirstGrpc(x =>
+{
+    x.Interceptors.Add<DomainExceptionInterceptor>();
+});
 
 builder.Services.AddDbContext<CardsContext>(x =>
 {
