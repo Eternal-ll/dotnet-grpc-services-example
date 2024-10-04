@@ -1,6 +1,4 @@
-using CardsService.Sdk;
-using CardsService.Sdk.Interceptors;
-using ProtoBuf.Grpc.ClientFactory;
+using GatewayService.Api.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,13 +16,7 @@ builder.Services.AddSwaggerGen(x =>
     }
 });
 
-builder.Services
-    .AddTransient<DomainExceptionInterceptor>()
-    .AddCodeFirstGrpcClient<ICardsService>(x =>
-    {
-        x.Address = builder.Configuration.GetValue<Uri>("Services:CardsService:Url");
-    })
-    .AddInterceptor<DomainExceptionInterceptor>();
+builder.Services.AddCardsService(builder.Configuration);
 
 builder.Services.AddHealthChecks();
 
