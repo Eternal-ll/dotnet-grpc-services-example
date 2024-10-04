@@ -16,11 +16,7 @@ namespace CardsService.Api.Infrastructure.Services
 
         public async Task<Card> Add(AddCardRequest request, CancellationToken cancellationToken = default)
         {
-            var cardType = await _context.CardTypes.FirstOrDefaultAsync(x => x.Id == request.CardTypeId, cancellationToken);
-            if (cardType == null)
-            {
-                throw new ServiceException(ErrorCode.CardTypeNotFound);
-            }
+            var cardType = await _context.CardTypes.FirstOrDefaultAsync(x => x.Id == request.CardTypeId, cancellationToken) ?? throw new ServiceException(ErrorCode.CardTypeNotFound);
             var card = new Database.Entities.Card()
             {
                 CardTypeId = request.CardTypeId,
@@ -44,7 +40,7 @@ namespace CardsService.Api.Infrastructure.Services
         {
             var card = await _context.Cards
                 .Include(x => x.CardType)
-                .FirstOrDefaultAsync(x => x.Id == request.Id)
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken)
                 ?? throw new ServiceException(ErrorCode.CardNotFound);
             return new Card()
             {
