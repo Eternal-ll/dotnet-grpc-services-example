@@ -14,16 +14,10 @@ namespace CardsService.Api.Infrastructure.Services
             _context = context;
         }
 
-        private static Dictionary<int, string> _cardTypes = new()
-        {
-            { 1, "Без банка" },
-            { 2, "От Уралсиб" },
-            { 3, "От Сбер" },
-            { 4, "От ПСБ" },
-        };
         public async Task<Card> Add(AddCardRequest request, CancellationToken cancellationToken = default)
         {
-            if (!_cardTypes.ContainsKey(request.CardTypeId))
+            var cardType = await _context.CardTypes.FirstOrDefaultAsync(x => x.Id == request.CardTypeId, cancellationToken);
+            if (cardType == null)
             {
                 throw new ServiceException(ErrorCode.CardTypeNotFound);
             }
@@ -41,14 +35,16 @@ namespace CardsService.Api.Infrastructure.Services
                 Type = new()
                 {
                     Id = card.CardTypeId,
-                    Name = _cardTypes[card.CardTypeId]
+                    Name = cardType.Name
                 }
             };
         }
 
         public async Task<Card> GetById(GetCardByIdRequest request, CancellationToken cancellationToken = default)
         {
-            var card = await _context.Cards.FirstOrDefaultAsync(x => x.Id == request.Id)
+            var card = await _context.Cards
+                .Include(x => x.CardType)
+                .FirstOrDefaultAsync(x => x.Id == request.Id)
                 ?? throw new ServiceException(ErrorCode.CardNotFound);
             return new Card()
             {
@@ -57,7 +53,7 @@ namespace CardsService.Api.Infrastructure.Services
                 Type = new CardType()
                 {
                     Id = card.CardTypeId,
-                    Name = _cardTypes[card.CardTypeId]
+                    Name = card.CardType.Name
                 }
             };
         }
@@ -65,6 +61,7 @@ namespace CardsService.Api.Infrastructure.Services
         public async Task<Card[]> GetCards(GetCardsRequest request, CancellationToken cancellationToken = default)
         {
             var data = await _context.Cards
+                .Include(x => x.CardType)
                 .Skip(request.Skip)
                 .Take(request.Take)
                 .ToArrayAsync(cancellationToken);
@@ -75,18 +72,19 @@ namespace CardsService.Api.Infrastructure.Services
                     Type = new()
                     {
                         Id = x.CardTypeId,
-                        Name = _cardTypes[x.CardTypeId]
+                        Name = x.CardType.Name
                     },
                     Sn = x.Sn
                 })
                 .ToArray();
         }
 
-        public Task<CardType[]> GetCardTypes(CancellationToken cancellationToken = default)
+        public async Task<CardType[]> GetCardTypes(CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(_cardTypes
-                .Select(x => new CardType() { Id = x.Key, Name = x.Value })
-                .ToArray());
+            var data = await _context.CardTypes.ToArrayAsync(cancellationToken);
+            return data
+                .Select(x => new CardType() { Id = x.Id, Name = x.Name })
+                .ToArray();
         }
     }
 }

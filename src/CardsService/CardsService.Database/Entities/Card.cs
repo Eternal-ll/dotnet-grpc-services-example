@@ -1,9 +1,18 @@
 ﻿namespace CardsService.Database.Entities
 {
-    public class Card
+    /// <summary>
+    /// Карта
+    /// </summary>
+    public class Card : Base.Entity
     {
-        public int Id { get; set; }
+        /// <summary>
+        /// Тип карты
+        /// </summary>
         public int CardTypeId { get; set; }
-        public string Sn { get; set; }
+        /// <summary>
+        /// Серийный номер карты
+        /// </summary>
+        public string Sn { get; set; } = null!;
+        public virtual CardType CardType { get; set; } = null!;
     }
 }
