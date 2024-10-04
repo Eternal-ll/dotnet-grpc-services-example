@@ -22,7 +22,7 @@ builder.Services
     .AddTransient<DomainExceptionInterceptor>()
     .AddCodeFirstGrpcClient<ICardsService>(x =>
     {
-        x.Address = new Uri("http://localhost:5211");
+        x.Address = builder.Configuration.GetValue<Uri>("Services:CardsService:Url");
     })
     .AddInterceptor<DomainExceptionInterceptor>();
 
