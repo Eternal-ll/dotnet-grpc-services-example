@@ -1,3 +1,4 @@
+using CardsService.Api.Infrastructure.Background;
 using CardsService.Api.Infrastructure.Services;
 using CardsService.Database.Context;
 using CardsService.Sdk.Interceptors;
@@ -15,6 +16,8 @@ builder.WebHost.ConfigureKestrel((options) =>
     // according to Microsoft dual http version mode not supported in unencrypted scenario: https://learn.microsoft.com/en-us/aspnet/core/grpc/troubleshoot?view=aspnetcore-3.0
     options.ConfigureEndpointDefaults(lo => lo.Protocols = HttpProtocols.Http2);
 });
+
+builder.Services.AddHostedService<DbInitializeService>();
 
 // Add services to the container.
 builder.Services.AddCodeFirstGrpc(x =>
