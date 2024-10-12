@@ -1,4 +1,5 @@
 using CardsService.Api.Infrastructure.Background;
+using CardsService.Api.Infrastructure.Extensions;
 using CardsService.Api.Infrastructure.Services;
 using CardsService.Database.Context;
 using CardsService.Sdk.Interceptors;
@@ -29,6 +30,7 @@ builder.Services.AddDbContext<CardsContext>(x =>
 {
     x.UseInMemoryDatabase("Cards");
 });
+builder.Services.AddMapsterMapping();
 
 builder.Services.AddHealthChecks();
 
